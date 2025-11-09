@@ -94,22 +94,15 @@ class OracleDB:
             FROM (
                 select ip.tf_region, ip.ip_address_type, account.account_name, account.admin_email, compartment.compartment_name, 
                 compartment.phonebook, ip.tf_lifecycle_state, ip.resource_creation_time
-                from tb_ip_event ip, TB_COMPARTMENT_LATEST compartment, tb_account_latest account WHERE ip_address = :ip_address
+                from tb_ip_event ip, TB_COMPARTMENT_LATEST compartment, tb_account_latest account 
+                WHERE ip.tenant_id = account.tenant_id and ip.tf_compartment_id = compartment.resource_id and ip_address = :ip_address
                 order by resource_creation_time desc FETCH FIRST 10 ROWS ONLY          
             
             ) 
         """
-
         self.cur.execute(sql, ip_address=ip_address)
-        row = self.cur.fetchone()
-        if not row:
-            return None
-
-        json_result = row[0]
-        try:
-            return json_result.read()  # works if LOB object
-        except AttributeError:
-            return json_result
+        json_str = self.cur.fetchall()
+        return json_str
     
 
     def get_account_details(self, account_name=None, tenant_id=None):
