@@ -1,0 +1,53 @@
+[
+    {
+        "type": "function",
+        "function": {
+            "name": "call_accounts_agent",
+            "description": "Query account or tenant information. Can lookup account information by account name, tenant id, etc.",
+            "parameters": {
+            "type": "object",
+            "properties": {
+                "task": {
+                "type": "string",
+                "description": "Refined instruction needed to retrieve account data."
+                }
+            },
+            "required": ["task"]
+            }
+        }
+    },
+    {
+        "type": "function",
+        "function": {
+            "name": "call_ip_address_agent",
+            "description": "Given an IP address or Tenant information, retrieve metadata, history of IP address and can analyze ownership, public/private IP metadata.",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                "task": {
+                    "type": "string",
+                    "description": "Refined IP lookup instruction based on orchestrator reasoning."
+                }
+                },
+                "required": ["task"]
+            }
+        }
+  },
+  {
+    "type": "function",
+    "function": {
+      "name": "catalog_agent",
+      "description": "Queries product or service catalog for metadata, versions, and configuration.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "catalog_query": {
+            "type": "string",
+            "description": "Item or configuration to lookup from catalog."
+          }
+        },
+        "required": []
+      }
+    }
+  }
+]

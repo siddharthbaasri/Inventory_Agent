@@ -1,0 +1,4 @@
+openai
+requests
+genai-openai-client>=0.1.6
+oci>=2.153.0
