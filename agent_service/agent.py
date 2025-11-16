@@ -6,6 +6,8 @@ import json
 from prompt import orchestrator_system_prompt
 from fastmcp import Client
 from abc import ABC, abstractmethod
+import time
+
 
 
 models = ['meta.llama-3.3-70b-instruct', 'openai.o3', 'openai.gpt-5', 'openai.gpt-4.1']
@@ -70,12 +72,14 @@ class AgentBase(ABC):
         })
 
         while True:
+            start_time = time.time()
             response = self.client.chat.completions.create(
                 model = self.model,
                 tools=self.tools,
                 messages=self.messages,
                 parallel_tool_calls= True
             )
+            print(f"The LLM call took {time.time() - start_time} seconds")
 
             tool_calls = response.choices[0].message.tool_calls
             if not tool_calls:
@@ -92,14 +96,15 @@ class AgentBase(ABC):
                 tool_name = tool_call.function.name
                 tool_args = tool_call.function.arguments
                 print(f"calling tool {tool_name} with arguments {tool_args}")
-
+                start_time = time.time()
                 try:
                     result = await self.execute_tool(tool_name, tool_args)
                 except Exception as e:
                     print(f"Tool error: {e}")
                     result = "Could not execute the tool to get information"
 
-                print(f"Tool call completed")
+                print(f"The call for tool {tool_name} took {time.time() - start_time} seconds")
+
                 self.messages.append({
                     "role": "tool",
                     "tool_call_id": tool_call.id,

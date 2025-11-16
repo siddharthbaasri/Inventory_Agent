@@ -1,5 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Role = "user" | "assistant";
 type Message = { role: Role; content: string };
@@ -8,6 +10,7 @@ const SERVER_URL = "http://127.0.0.1:8080/api/chat"
 export default function Home() {
   const [input, setInput] = useState("");
   const [messages, setMessages] = useState<Message[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleTextareaChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
@@ -20,6 +23,7 @@ export default function Home() {
   const sendMessage = async () => {
     if (!input.trim()) return;
     setInput("");
+    setIsLoading(true);
 
     const userMessage: Message = {role: "user", content: input}
     setMessages((prev) => [...prev, userMessage]);
@@ -35,11 +39,13 @@ export default function Home() {
 
       const data = await res.json();
       serverMessage = data.reply;
+      console.log(serverMessage)
     }
     catch {
       serverMessage = "There was an issue in connecting to the server";
     }
     finally {
+      setIsLoading(false);
       const botMsg: Message = { role: "assistant", content: serverMessage };
       setMessages((prev) => [...prev, botMsg]);
     }
@@ -52,16 +58,56 @@ export default function Home() {
       </div>
 
       {/* Right pane */}
-      <div className="flex-1 overflow-y-auto bg-white">
+      <div className="flex-1 pt-4 overflow-y-auto bg-white">
 
         {
            messages.map((msg, i) => {
-            return <div> {msg.content} </div>
+            return <div key={i} className="w-full flex justify-center px-4"> 
+             {/* Message text */}
+              <div className={`w-full max-w-3xl flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                <div
+                  className={`max-w-3xl w-fit text-[15px] ${
+                    msg.role === "user"
+                      ? "bg-gray-200 text-black px-4 py-3 rounded-xl whitespace-pre-space"
+                      : "px-4 py-3 rounded-xl"
+                  }`}
+                >
+                  <ReactMarkdown 
+                    remarkPlugins={[remarkGfm]}
+                    skipHtml={false}
+                    components={{
+                      p: ({node, ...props}) => <p className="mb-2" {...props} />,
+                      h3: ({node, ...props}) => <h3 className="mt-4 mb-2" {...props} />,
+                      ul: ({node, ...props}) => <ul className="mt-1 mb-2" {...props} />,
+                      li: ({node, ...props}) => <li className="mb-1" {...props} />,
+                      strong: ({node, ...props}) => <strong className="break-words" {...props} />
+                    }}
+                  >
+                    {msg.content} 
+                  </ReactMarkdown>
+                </div>
+              </div>
+            </div>
            })
         }
 
+        {/* Typing Indicator */}
+        {isLoading && (
+          <div className="w-full flex justify-center px-4 mb-2">
+            <div className="w-full max-w-3xl flex gap-3 justify-start">
+              <div className="bg-white border border-gray-300 px-4 py-3 rounded-xl">
+                <div className="flex gap-1">
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                  <span className="dot"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Bottom box */}
-        <div className="fixed bottom-0 left-0 right-0 flex justify-center px-4 py-4 bg-gradient-to-t from-[#f7f7f8] via-[#f7f7f8]/90 pointer-events-none">
+        <div className="fixed bottom-0 left-72 right-0 flex justify-center px-4 py-4 bg-gradient-to-t from-[#f7f7f8] via-[#f7f7f8]/90 pointer-events-none">
           <div className="w-full max-w-3xl flex gap-2 pointer-events-auto">
             <textarea
               ref={textareaRef}

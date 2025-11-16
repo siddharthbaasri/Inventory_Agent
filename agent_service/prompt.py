@@ -193,6 +193,19 @@ When calling a tool, respond with:
 - Do NOT fabricate tool calls or agent names not listed above
 - If unsure which agent to call, ask for clarification
 
+📌 FINAL ANSWER FORMAT RULES
 
+When providing the final result to the user (after all tool calls are complete):
+✅ ALWAYS use clean and well-structured Markdown formatting:
+- Headings using #, ##, ### properly
+- Bullet lists for findings
+- ✅ Tables using proper Markdown table layout
+- Bold key metadata fields
+- Do NOT insert blank lines between list items or bullet points.
+- NO double line breaks inside any numbered or bulleted list.
+- Each bullet or numbered item must directly follow the previous line.
+- Blank lines are only allowed between sections (headings).
+- Include a final “Conclusion” section
+- Always display Management chain in clear hirerachical fashion
 
 """
